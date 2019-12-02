@@ -1,13 +1,14 @@
-float glow_intensity = 0.12;
+float glow_intensity = 0.15;
 float fog_intensity = 0.5;
 
 
 
 vec3 color_scheme(float t) {
-    vec3 contrast = vec3(0.5, 0.5, 0.5);
-    vec3 brightness = vec3(0.5, 0.5, 0.5);
-    vec3 frequency = vec3(0.5, 0.5, 0.5);
-    vec3 phase = vec3(0.0, 0.33, 0.66);
+    					   //R    G    B
+    vec3 contrast = 	vec3(0.5, 0.5, 0.5);
+    vec3 brightness = 	vec3(0.5, 0.3, 0.5);
+    vec3 frequency = 	vec3(0.5, 0.5, 0.5);
+    vec3 phase = 		vec3(0.0, 0.33, 0.66);
     
     return contrast + brightness * cos(6.28318 * (frequency * t + phase));
 }
@@ -20,16 +21,11 @@ float sphere_sdf( vec3 origin, float radius, vec3 pos) {
 
 
 
-float box_sdf(vec3 pos, vec3 dim, float rounding) {
- 	vec3 q = abs(pos) - dim;
+float box_sdf(vec3 pos, vec3 origin, vec3 dim, float rounding) {
+ 	vec3 q = abs(pos - origin) - dim;
     return length(max(q, 0.0)) + min( max( q.x, max(q.y, q.z)), 0.0) - rounding;
 }
 
-
-
-float torus_sdf(vec3 pos, vec2 dim) {
-    return length(vec2(length(pos.xz) - dim.x, dim.y)) - dim.y;
-}
 
 
 
@@ -38,6 +34,8 @@ float scene(vec3 pos) {
     min_distance = min(min_distance, sphere_sdf(vec3(1, -1,-1), 0.5, pos));
     min_distance = min(min_distance, sphere_sdf(vec3(0, 1, -1), 0.5, pos));
     min_distance = min(min_distance, sphere_sdf(vec3(0, -0.25, -1), 0.25, pos));
+    min_distance = min(min_distance, box_sdf(pos, vec3(0, -0.25, -1), vec3(0.25, 0.25, 0.5), 0.1));
+    //min_distance = min(min_distance, );
     return min_distance;    
 }
 
@@ -88,22 +86,21 @@ void rotate(inout vec3 vec, vec2 angle) {
     
     
 void mainImage( out vec4 fragColor, in vec2 fragCoord )
-{
-	vec2 uv = 8.0 * (fragCoord - iResolution.xy * 0.5) / iResolution.x;
-    
-    							//Pixel xy components
+{ 
+    							//Transform from pixel coordinates to uv coordinates
     vec3 ray = normalize ( vec3((fragCoord - iResolution.xy * 0.5) / iResolution.x,
                                 //Seperation of 'eye' and 'screen'
-                               	 1.0) );
+                               	 1.0));
     vec3 pos = vec3(0, 0, -8);
     
-    vec2 angle = vec2(iTime, 0.3);
+    vec2 angle = vec2(iTime, 0.0);
     
     rotate(pos, angle);
     rotate(ray, angle);
     
     //fragColor = vec4(step(0.0, scene(ray*8.0 + pos))); 
        
+    
 	fragColor = march(ray, pos);
 }
 

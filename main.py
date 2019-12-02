@@ -20,12 +20,24 @@ WINDOW_HEIGHT = 500
 
 
 def drawSquare():
+    #Beginning of quad definition
     glBegin(GL_QUADS)
+    
+    #Bottom left
     glVertex2f(0, 0)
+    
+    #Bottom right
     glVertex2f(WINDOW_WIDTH, 0)
+    
+    #Top right
     glVertex2f(WINDOW_WIDTH, WINDOW_HEIGHT)
+    
+    #Top left
     glVertex2f(0, WINDOW_HEIGHT)
+    
     glEnd()
+
+
 
 
 def main():
@@ -36,6 +48,8 @@ def main():
     
     pygame.init()
     display = (WINDOW_WIDTH, WINDOW_HEIGHT)
+    
+    #Open window
     pygame.display.set_mode(display, DOUBLEBUF | OPENGL)
     
     #glTranslatef(0.0, 0.0, 0.0)
@@ -54,11 +68,16 @@ def main():
         g += 0.005
         b += 0.001
                 
+        #Clear screen
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
         glMatrixMode(GL_PROJECTION)
         glLoadIdentity()
+        
+        #Set view to orthographic to map square directly to display 
         glOrtho(0.0, WINDOW_WIDTH, 0.0, WINDOW_HEIGHT, 0.0, 1.0)
         glMatrixMode(GL_MODELVIEW)
+        
+        #Set the color of the rendered quad
         glColor3f((math.sin(r) + 1) / 2, 
                   (math.cos(g) + 1) / 2,
                   (math.sin(r) + 1) / 2)
